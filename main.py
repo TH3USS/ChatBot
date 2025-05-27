@@ -1,27 +1,24 @@
-import openai
+import google.generativeai as genai
+ 
+genai.configure(api_key="AIzaSyB00olEP1p-rPl3hJI4XCXYmNLACniF6Xo")
 
-chave_api = ...
-openai.api_key = chave_api
+modelo = genai.GenerativeModel('gemini-2.0-flash')
 
 def enviar_mensagem(mensagem, lista_mensagens=[]):
-    lista_mensagens.append(
-        {'role': 'user', 'content': mensagem}
-    )
+    lista_mensagens.append({'role': 'user', 'parts': [mensagem]})
 
-    resposta = openai.ChatCompletion.create(
-        model = 'gpt-3.5-turbo',
-        messages = lista_mensagens,
-    )
+    resposta = modelo.generate_content(lista_mensagens)
 
-    return resposta['choices'][0]['message']
+    lista_mensagens.append({'role': 'model', 'parts': [resposta.text]})
+
+    return resposta.text
 
 lista_mensagens = []
 while True:
     texto = input('Escreva aqui sua mensagem: ')
 
-    if texto == 'sair':
+    if texto.lower() == 'sair':
         break
     else:
         resposta = enviar_mensagem(texto, lista_mensagens)
-        lista_mensagens.append(resposta)
-        print('Chatbot:', resposta['content'])
+        print('Chatbot:', resposta)
